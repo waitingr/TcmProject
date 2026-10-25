@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智辨岐黄 - 中医智能问诊平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            zhongyi: {
+              light: '#F5F0E6', // 米色背景
+              main: '#C8A278', // 浅棕主色
+              dark: '#634B32', // 墨棕深色
+              accent: '#2C5C42' // 青黛色强调
+            }
+          },
+          fontFamily: {
+            song: ['SimSun', 'serif'], // 宋体，贴合中风气韵
+            hei: ['Microsoft YaHei', 'sans-serif'] // 雅黑，保证可读性
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .font-size-16 { font-size: 16px; }
+      .font-size-18 { font-size: 18px; }
+      .font-size-20 { font-size: 20px; }
+      .bg-zhongyi-paper { 
+        background-color: #F5F0E6; 
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23c8a278' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E"); 
+      }
+      .chat-bubble-user { border-radius: 16px 16px 4px 16px; }
+      .chat-bubble-ai { border-radius: 16px 16px 16px 4px; }
+      .btn-zhongyi { @apply bg-zhongyi-main text-white py-3 px-8 rounded-lg font-hei font-medium hover:bg-zhongyi-dark transition-all duration-300 shadow-md hover:shadow-lg; }
+      .card-zhongyi { @apply bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 border border-zhongyi-light/50; }
+      
+      /* 录音动画样式 */
+      .recording-pulse {
+        animation: pulse-red 1.5s infinite;
+        color: #ef4444; 
+      }
+      @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      }
+    }
+  </style>
+</head>
+
+<div id="auth-modal" class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center">
+  <div class="bg-white p-8 rounded-xl w-96 shadow-2xl border-t-4 border-zhongyi-main">
+    <h3 id="auth-title" class="text-2xl font-bold mb-6 text-center text-zhongyi-dark font-song">用户登录</h3>
+    <div class="space-y-4">
+      <div class="relative">
+        <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
+        <input type="text" id="auth-username" placeholder="请输入账号" class="w-full border border-zhongyi-light rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-zhongyi-main outline-none">
+      </div>
+      <div class="relative">
+        <i class="fa-solid fa-lock absolute left-3 top-3 text-gray-400"></i>
+        <input type="password" id="auth-password" placeholder="请输入密码" class="w-full border border-zhongyi-light rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-zhongyi-main outline-none">
+      </div>
+      <div id="nickname-group" class="relative hidden">
+        <i class="fa-solid fa-signature absolute left-3 top-3 text-gray-400"></i>
+        <input type="text" id="auth-nickname" placeholder="设置您的公开昵称" class="w-full border border-zhongyi-light rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-zhongyi-main outline-none">
+      </div>
+      
+      <button id="auth-submit-btn" class="w-full btn-zhongyi shadow-none py-2">进入平台</button>
+      
+      <p class="text-center text-sm text-gray-500">
+        <span id="auth-hint">没有账号？</span>
+        <a href="javascript:void(0)" id="auth-switch" class="text-zhongyi-accent font-bold hover:underline">点击注册</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<body class="bg-zhongyi-paper font-hei text-zhongyi-dark min-h-screen flex flex-col font-size-18">
+  <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-zhongyi-main/20">
+    <div class="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+      <a href="#" class="flex items-center gap-2 mb-2 md:mb-0">
+        <i class="fa-solid fa-leaf text-zhongyi-accent text-2xl"></i>
+        <h1 class="text-2xl md:text-3xl font-song font-bold text-zhongyi-dark">智辨岐黄</h1>
+      </a>
+
+      <nav class="w-full md:w-auto flex flex-col md:flex-row gap-3 md:gap-6 mb-2 md:mb-0">
+        <a href="#home" class="nav-link text-center py-2 px-3 rounded hover:bg-zhongyi-light/50 font-medium active text-zhongyi-accent">首页</a>
+        <a href="#consult" class="nav-link text-center py-2 px-3 rounded hover:bg-zhongyi-light/50 font-medium">智能问诊</a>
+        <a href="#result" class="nav-link text-center py-2 px-3 rounded hover:bg-zhongyi-light/50 font-medium">辨证结果</a>
+        <a href="#center" class="nav-link text-center py-2 px-3 rounded hover:bg-zhongyi-light/50 font-medium">个人中心</a>
+      </nav>
+
+      <div class="flex gap-3 items-center">
+        <div class="flex gap-2 border border-zhongyi-main/30 rounded-lg p-1 bg-zhongyi-light/30">
+          <button id="font-sm" class="w-8 h-8 flex items-center justify-center rounded hover:bg-zhongyi-main/20 text-sm">A-</button>
+          <button id="font-md" class="w-8 h-8 flex items-center justify-center rounded bg-zhongyi-main/20 text-base">A</button>
+          <button id="font-lg" class="w-8 h-8 flex items-center justify-center rounded hover:bg-zhongyi-main/20 text-lg">A+</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <section id="home" class="page active">
+      <div class="relative rounded-2xl overflow-hidden bg-zhongyi-dark/90 text-white py-16 md:py-24 px-6 mb-12 flex flex-col items-center justify-center text-center">
+        <div class="absolute inset-0 bg-image opacity-20 pointer-events-none" style="background-image: url('https://picsum.photos/id/237/1920/1080'); background-size: cover; background-position: center;"></div>
+        <h2 class="text-3xl md:text-5xl font-song font-bold mb-4 relative z-10">智能辨证 · 一人一方</h2>
+        <p class="text-lg md:text-xl mb-8 max-w-2xl relative z-10">基于大语言模型与中医知识图谱，打造便捷、专业的中医智能问诊服务</p>
+        <button id="start-consult-btn" onclick="goToConsult()" class="btn-zhongyi text-lg md:text-xl py-4 px-10 relative z-20">
+          <i class="fa-solid fa-message-medical mr-2"></i>开始问诊
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="card-zhongyi flex flex-col items-center text-center">
+          <i class="fa-solid fa-brain text-zhongyi-accent text-4xl mb-4"></i>
+          <h3 class="text-xl font-bold mb-2">专业中医逻辑</h3>
+          <p class="text-gray-600">融合中医整体观念与辨证论治，知识图谱支撑推理严谨性</p>
+        </div>
+        <div class="card-zhongyi flex flex-col items-center text-center">
+          <i class="fa-solid fa-user-md text-zhongyi-accent text-4xl mb-4"></i>
+          <h3 class="text-xl font-bold mb-2">个性化方案</h3>
+          <p class="text-gray-600">根据体质、症状、生活习惯，定制中药、食疗、养生全方案</p>
+        </div>
+        <div class="card-zhongyi flex flex-col items-center text-center">
+          <i class="fa-solid fa-mobile-screen-button text-zhongyi-accent text-4xl mb-4"></i>
+          <h3 class="text-xl font-bold mb-2">轻量化部署</h3>
+          <p class="text-gray-600">支持多终端运行，适老化设计，操作简单，基层也能轻松使用</p>
+        </div>
+      </div>
+
+      <div id="news" class="card-zhongyi">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-newspaper text-zhongyi-main"></i>中医健康资讯
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <a href="#" class="group hover:text-zhongyi-accent">
+            <div class="rounded-lg overflow-hidden h-40 mb-2">
+              <img src="https://picsum.photos/id/1025/400/300" alt="春季养生" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            </div>
+            <p class="font-medium">春季养肝，这些食疗方要收好</p>
+          </a>
+          <a href="#" class="group hover:text-zhongyi-accent">
+            <div class="rounded-lg overflow-hidden h-40 mb-2">
+              <img src="https://picsum.photos/id/1080/400/300" alt="痰湿体质调理" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            </div>
+            <p class="font-medium">痰湿体质的日常调理指南</p>
+          </a>
+          <a href="#" class="group hover:text-zhongyi-accent">
+            <div class="rounded-lg overflow-hidden h-40 mb-2">
+              <img src="https://picsum.photos/id/1060/400/300" alt="夏季祛湿" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            </div>
+            <p class="font-medium">夏季祛湿，这3个功法超有效</p>
+          </a>
+          <a href="#" class="group hover:text-zhongyi-accent">
+            <div class="rounded-lg overflow-hidden h-40 mb-2">
+              <img src="https://picsum.photos/id/1074/400/300" alt="气虚质养生" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            </div>
+            <p class="font-medium">气虚质人群的饮食与运动建议</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="consult" class="page hidden">
+      <div class="card-zhongyi max-w-2xl mx-auto">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-comments-medical text-zhongyi-main"></i>智能问诊室
+        </h3>
+        <div class="border border-zhongyi-light/80 rounded-lg h-96 overflow-y-auto p-4 mb-4 bg-white flex flex-col gap-4" id="chat-box">
+          <div class="flex gap-2 items-start ai-msg">
+            <div class="w-8 h-8 rounded-full bg-zhongyi-main flex items-center justify-center text-white shrink-0">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="chat-bubble-ai bg-zhongyi-light py-2 px-4 max-w-[80%]">
+              您好！我是智辨岐黄智能问诊助手，请问您目前有哪些身体不适呢？（例如：面色苍白、头痛发热等）
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="msg-input" placeholder="请描述您的症状/回答问题..." class="flex-grow border border-zhongyi-light/80 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-zhongyi-main/50">
+          <button id="voice-btn" class="w-12 h-12 flex items-center justify-center rounded-lg border border-zhongyi-light/80 text-zhongyi-main hover:bg-zhongyi-light/50 transition-all" title="语音输入">
+            <i class="fa-solid fa-microphone text-xl"></i>
+          </button>
+          <button id="send-btn" class="btn-zhongyi py-2 px-6">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+        <p id="voice-status" class="text-xs text-gray-500 mt-2 h-4 text-center italic"></p>
+      </div>
+    </section>
+
+    <section id="result" class="page hidden">
+      <div class="max-w-3xl mx-auto gap-6 flex flex-col">
+        <div class="card-zhongyi">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-stethoscope text-zhongyi-main"></i>中医辨证结果
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="p-4 bg-zhongyi-light/30 rounded-lg">
+              <p class="text-sm text-gray-500 mb-1">证型判定</p>
+              <p id="res-type" class="text-lg font-bold text-zhongyi-dark">等待问诊中...</p>
+            </div>
+            <div class="p-4 bg-zhongyi-light/30 rounded-lg">
+              <p class="text-sm text-gray-500 mb-1">体质特征</p>
+              <p id="res-feature" class="text-zhongyi-dark">等待问诊中...</p>
+            </div>
+            <div class="p-4 bg-zhongyi-light/30 rounded-lg">
+              <p class="text-sm text-gray-500 mb-1">健康风险</p>
+              <p id="res-risk" class="text-zhongyi-dark">等待问诊中...</p>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm">* 本结果为智能辨证参考，不构成专业医疗建议，如有不适请及时就医。</p>
+        </div>
+
+        <div class="card-zhongyi">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-prescription-bottle-medical text-zhongyi-main"></i>个性化调理方案
+          </h3>
+          <div id="res-advice" class="text-zhongyi-dark whitespace-pre-line leading-relaxed bg-zhongyi-light/30 p-4 rounded-lg border border-zhongyi-main/20">
+            完成问诊后，将在此生成详细的中医、食疗及养生建议方案。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="center" class="page hidden">
+      <div class="max-w-2xl mx-auto">
+        <div class="card-zhongyi mb-6">
+          <div class="flex flex-col sm:flex-row gap-4 items-center mb-6">
+            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-zhongyi-main">
+              <img src="https://picsum.photos/id/1005/100/100" alt="用户头像" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">张大爷</h3>
+              <p class="text-gray-600 flex items-center gap-1"><i class="fa-solid fa-id-card"></i>实名认证用户</p>
+              <p class="text-gray-600 flex items-center gap-1 mt-1"><i class="fa-solid fa-birthday-cake"></i>65岁 · 气虚质</p>
+            </div>
+          </div>
+
+          <!--按钮区域-->
+          <div class="flex flex-col items-center justify-center py-4 border-y border-zhongyi-light/30 my-6">
+            <button onclick="openHealthModal()" class="group flex items-center gap-4 px-8 py-4 bg-zhongyi-light/30 border border-zhongyi-main/20 rounded-2xl hover:bg-zhongyi-main hover:text-white transition-all duration-300 shadow-sm hover:shadow-md">
+              <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-zhongyi-main group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-heart-pulse text-2xl"></i>
+              </div>
+              <div class="text-left">
+                <p class="font-bold text-lg">完善健康档案</p>
+                <p class="text-xs opacity-70">提供身高体重，获取精准辨证</p>
+              </div>
+            </button>
+          </div>
+
+          <div id="health-display-card" class="card-zhongyi mt-6 hidden">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-notes-medical text-zhongyi-main"></i> 我的健康数据
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
+                <p class="text-xs text-gray-500 mb-1">身高</p>
+                <p id="val-height" class="font-bold text-zhongyi-dark">-- cm</p>
+              </div>
+              <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
+                <p class="text-xs text-gray-500 mb-1">体重</p>
+                <p id="val-weight" class="font-bold text-zhongyi-dark">-- kg</p>
+              </div>
+              <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
+                <p class="text-xs text-gray-500 mb-1">BMI指数</p>
+                <p id="val-bmi" class="font-bold text-zhongyi-accent">--</p>
+              </div>
+              <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
+                <p class="text-xs text-gray-500 mb-1">遗传病史</p>
+                <p id="val-history" class="font-bold text-zhongyi-dark text-sm truncate" title="无">无</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-zhongyi">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-zhongyi-main"></i>近期问诊记录
+          </h3>
+          <div class="border-t border-zhongyi-light/50 pt-4">
+            <div class="flex justify-between items-center mb-3 pb-3 border-b border-zhongyi-light/30">
+              <div>
+                <p class="font-medium">2026-05-20 智能问诊</p>
+                <p class="text-sm text-gray-600">气虚质/痰湿质辨证</p>
+              </div>
+              <a href="#result" class="text-zhongyi-accent hover:underline text-sm">查看详情</a>
+            </div>
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-medium">2026-05-10 智能问诊</p>
+                <p class="text-sm text-gray-600">脾虚质辨证</p>
+              </div>
+              <a href="#" class="text-zhongyi-accent hover:underline text-sm">查看详情</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-zhongyi-dark text-white py-8 mt-12">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-leaf text-zhongyi-main text-2xl"></i>
+          <h2 class="text-2xl font-song font-bold">智辨岐黄</h2>
+        </div>
+        <div class="text-center md:text-left">
+          <p class="text-gray-300">基于大语言模型的中医智能问诊平台</p>
+          <p class="text-gray-400 text-sm mt-1">©2026 智辨岐黄 版权所有 | 本平台仅为健康参考，不替代专业医疗服务</p>
+        </div>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-zhongyi-main transition-all"><i class="fa-solid fa-weixin"></i></a>
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-zhongyi-main transition-all"><i class="fa-solid fa-phone"></i></a>
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-zhongyi-main transition-all"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!--这里是新加得-->
+  <div id="health-modal" class="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl border-t-4 border-zhongyi-accent mx-4">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-zhongyi-dark font-song">完善健康档案</h3>
+        <button onclick="closeHealthModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">身高 (cm)</label>
+          <input type="number" id="in-height" placeholder="输入身高，如 175" class="w-full border border-zhongyi-light rounded-xl px-4 py-3 focus:ring-2 focus:ring-zhongyi-accent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">体重 (kg)</label>
+          <input type="number" id="in-weight" placeholder="输入体重，如 70" class="w-full border border-zhongyi-light rounded-xl px-4 py-3 focus:ring-2 focus:ring-zhongyi-accent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">遗传病史 / 过敏史</label>
+          <textarea id="in-history" rows="3" placeholder="如：家族有高血压史、对青霉素过敏等。若无请填“无”。" class="w-full border border-zhongyi-light rounded-xl px-4 py-3 focus:ring-2 focus:ring-zhongyi-accent outline-none transition-all resize-none"></textarea>
+        </div>
+        <div class="flex gap-4 pt-2">
+          <button onclick="closeHealthModal()" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all">取消</button>
+          <button onclick="saveHealthData()" class="flex-1 btn-zhongyi py-3 shadow-none bg-zhongyi-accent rounded-xl">保存档案</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 核心配置
+      // 核心配置
+      const apiConfig = {
+        url: 'https://api.deepseek.com/chat/completions', // 建议使用标准路径
+        key: 'sk-5da9b7a8a3df4d618dab89928afabbfd',
+        model: 'deepseek-chat' // 修复模型名称
+      };
+
+      // 1. 导航与页面切换逻辑
+      const navLinks = document.querySelectorAll('.nav-link');
+      const pages = document.querySelectorAll('.page');
+      
+      function switchPage(targetId) {
+        if (targetId === 'center') {
+          loadHistoryRecords(); // ⭐进入个人中心自动刷新
+        }
+        navLinks.forEach(l => l.classList.remove('active', 'text-zhongyi-accent'));
+        pages.forEach(p => p.classList.add('hidden'));
+        const activeLink = document.querySelector(`a[href="#${targetId}"]`);
+        if (activeLink) activeLink.classList.add('active', 'text-zhongyi-accent');
+        document.getElementById(targetId).classList.remove('hidden');
+        window.scrollTo(0, 0);
+      }
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          switchPage(link.getAttribute('href').slice(1));
+        });
+      });
+
+      // 暴露跳转方法给“开始问诊”按钮
+      window.goToConsult = function() {
+        switchPage('consult');
+      };
+
+      // 2. 适老化字体调节
+      const fontSm = document.getElementById('font-sm');
+      const fontMd = document.getElementById('font-md');
+      const fontLg = document.getElementById('font-lg');
+      const body = document.body;
+
+      function setFontSize(sizeClass, btnActive) {
+        body.className = body.className.replace(/font-size-\d+/g, '');
+        body.classList.add(sizeClass);
+        [fontSm, fontMd, fontLg].forEach(btn => btn.classList.remove('bg-zhongyi-main/20'));
+        if (btnActive) btnActive.classList.add('bg-zhongyi-main/20');
+      }
+
+      fontSm.addEventListener('click', () => setFontSize('font-size-16', fontSm));
+      fontMd.addEventListener('click', () => setFontSize('font-size-18', fontMd));
+      fontLg.addEventListener('click', () => setFontSize('font-size-20', fontLg));
+
+      // 3. 提取辨证结果逻辑 (解决逗号截断问题)
+      function syncResult(text) {
+        const clean = text.replace(/[*#]/g, '');
+
+        const typeMatch = clean.match(/(?:证型|结论|判定|诊断)[：:\s]+([^\n]+)/i);
+        const featureMatch = clean.match(/(?:特征|体质特征|表现)[：:\s]+([^\n]+)/i);
+        const riskMatch = clean.match(/(?:风险|健康风险|注意)[：:\s]+([^\n]+)/i);
+        const adviceMatch = clean.match(/(?:建议|方案|调理建议)[：:\s]+([\s\S]+)/i);
+
+        const resultObj = {
+          type: typeMatch ? typeMatch[1].trim() : "待定证型",
+          feature: featureMatch ? featureMatch[1].trim() : "详见详情",
+          risk: riskMatch ? riskMatch[1].trim() : "遵医嘱",
+          advice: adviceMatch ? adviceMatch[1].trim() : "完成问诊生成方案"
+        };
+
+        // 1. 更新 UI 界面
+        document.getElementById('res-type').innerText = resultObj.type;
+        document.getElementById('res-feature').innerText = resultObj.feature;
+        document.getElementById('res-risk').innerText = resultObj.risk;
+        document.getElementById('res-advice').innerText = resultObj.advice;
+
+        // 2. 调用保存接口存入数据库
+        saveConsultRecord(resultObj);
+      }
+
+      // 4. 问诊对话与API对接功能
+      const chatBox = document.getElementById('chat-box');
+      const msgInput = document.getElementById('msg-input');
+      const sendBtn = document.getElementById('send-btn');
+      const voiceBtn = document.getElementById('voice-btn');
+      const voiceStatus = document.getElementById('voice-status');
+
+      function scrollToBottom() {
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function addMessage(content, isUser) {
+        if (!chatBox) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex gap-2 items-start ${isUser ? 'justify-end' : ''}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-gray-200 text-gray-700' : 'bg-zhongyi-main text-white'}`;
+        avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+
+        const bubble = document.createElement('div');
+        bubble.className = `py-2 px-4 max-w-[80%] ${isUser ? 'chat-bubble-user bg-zhongyi-accent text-white' : 'chat-bubble-ai bg-zhongyi-light'}`;
+        bubble.textContent = content;
+
+        isUser ? msgDiv.append(bubble, avatar) : msgDiv.append(avatar, bubble);
+        chatBox.appendChild(msgDiv);
+        scrollToBottom();
+      }
+
+      async function aiReply(userMsg) {
+        // 显示思考动画
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'flex gap-2 items-start';
+        loadingMsg.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-zhongyi-main flex items-center justify-center text-white shrink-0">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="chat-bubble-ai bg-zhongyi-light py-2 px-4 max-w-[80%] text-gray-500 italic">
+            正在为您辨证中...
+          </div>
+        `;
+        chatBox.appendChild(loadingMsg);
+        scrollToBottom();
+
+        try {
+          const response = await fetch(apiConfig.url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiConfig.key}`
+            },
+            body: JSON.stringify({
+              model: apiConfig.model,
+              messages: [
+                {
+                  role: "system",
+                  content: "你是一个专业的中医智能问诊助手。请根据用户症状进行辨证分析。为了系统能够准确提取，在回复的最末尾，请【必须】严格按照以下4行格式总结（不要使用加粗、星号或其他特殊符号，每项占一行）：\n证型：[一句话概括]\n特征：[概括症状表现]\n风险：[概括可能的健康隐患]\n建议：[详细的调理方案]"
+                },
+                {
+                  role: "user",
+                  content: userMsg
+                }
+              ],
+              temperature: 0.7,
+              max_tokens: 800
+            })
+          });
+
+          if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+          const data = await response.json();
+          const aiResponse = data.choices[0].message.content.trim();
+
+          chatBox.removeChild(loadingMsg);
+          addMessage(aiResponse, false);
+          
+          // 调用同步逻辑，将结果填入辨证页面
+          syncResult(aiResponse);
+
+        } catch (error) {
+          chatBox.removeChild(loadingMsg);
+          addMessage(`抱歉，系统暂时无法响应，请稍后再试。`, false);
+        }
+      }
+
+      function sendMessage() {
+        const content = msgInput.value.trim();
+        if (!content) return;
+        addMessage(content, true);
+        msgInput.value = ''; // 发送后立刻清空输入框
+        aiReply(content);
+      }
+
+      // 绑定发送事件（修复回车与点击）
+      if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+      if (msgInput) {
+        msgInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            sendMessage();
+            e.preventDefault(); // 防止回车带来不必要的换行
+          }
+        });
+      }
+
+      // 5. 语音按钮动画交互
+      if (voiceBtn) {
+        voiceBtn.addEventListener('click', () => {
+          voiceBtn.classList.add('recording-pulse');
+          voiceStatus.textContent = "正在聆听，请说话...";
+          
+          setTimeout(() => {
+            voiceBtn.classList.remove('recording-pulse');
+            voiceStatus.textContent = "";
+            msgInput.value = "我最近头痛发热，面色苍白，非常容易疲劳。";
+          }, 2000);
+        });
+      }
+      // --- 登录注册系统逻辑 ---
+      const authModal = document.getElementById('auth-modal');
+      const authTitle = document.getElementById('auth-title');
+      const authSubmitBtn = document.getElementById('auth-submit-btn');
+      const authSwitch = document.getElementById('auth-switch');
+      const nicknameGroup = document.getElementById('nickname-group');
+      const authHint = document.getElementById('auth-hint');
+
+      let isRegisterMode = false;
+      let loggedUser = { id: null, nickname: '游客' };
+
+      // 切换登录/注册模式
+      authSwitch.onclick = () => {
+        isRegisterMode = !isRegisterMode;
+        authTitle.innerText = isRegisterMode ? '岐黄传人注册' : '用户登录';
+        authHint.innerText = isRegisterMode ? '已有账号？' : '没有账号？';
+        authSwitch.innerText = isRegisterMode ? '点击登录' : '点击注册';
+        nicknameGroup.classList.toggle('hidden', !isRegisterMode);
+      };
+
+      // 提交按钮逻辑
+      authSubmitBtn.onclick = async () => {
+        const username = document.getElementById('auth-username').value;
+        const password = document.getElementById('auth-password').value;
+        const nickname = document.getElementById('auth-nickname').value;
+
+        if (!username || !password) return alert('请填写账号密码');
+
+        const url = isRegisterMode ? '/api/register' : '/api/login';
+        const body = isRegisterMode ? { username, password, nickname } : { username, password };
+
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            if (isRegisterMode) {
+              alert('注册成功！快去登录吧');
+              authSwitch.click(); // 自动切回登录页
+            } else {
+              // 登录成功逻辑
+              loggedUser.id = data.userId;
+              loggedUser.nickname = data.nickname || '新用户';
+
+              // 1. 更新个人中心的用户名显示
+              const userHeading = document.querySelector('#center h3');
+              if (userHeading) userHeading.innerText = loggedUser.nickname;
+
+              // 2. 更新个人中心左侧的信息栏（可选）
+              const infoTag = document.querySelector('#center .text-gray-600.flex.mt-1');
+              if (infoTag) infoTag.innerHTML = `<i class="fa-solid fa-user-tag"></i> 您好，${loggedUser.nickname}`;
+
+              // 3. 隐藏弹窗
+              authModal.classList.add('hidden');
+              alert(`欢迎回来，${loggedUser.nickname}！`);
+            }
+          } else {
+            alert(data.message || '操作失败，请重试');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('后端接口未响应，请确保 Spring Boot 已启动');
+        }
+      };
+      <!--新加得-->
+      // --- 健康档案核心逻辑 ---
+
+// 1. 打开弹窗
+      window.openHealthModal = function() {
+        document.getElementById('health-modal').classList.remove('hidden');
+        // 如果之前填过，可以自动填入旧数据（可选）
+        const h = document.getElementById('val-height').innerText.replace(' cm', '');
+        const w = document.getElementById('val-weight').innerText.replace(' kg', '');
+        if(h !== '--') document.getElementById('in-height').value = h;
+        if(w !== '--') document.getElementById('in-weight').value = w;
+      };
+
+// 2. 关闭弹窗
+      window.closeHealthModal = function() {
+        document.getElementById('health-modal').classList.add('hidden');
+      };
+
+// 3. 保存逻辑
+      window.saveHealthData = async function() {
+        const height = document.getElementById('in-height').value;
+        const weight = document.getElementById('in-weight').value;
+        const history = document.getElementById('in-history').value || "无";
+
+        if (!height || !weight) {
+          alert('请填写完整的身高和体重信息，以便为您提供精准辨证');
+          return;
+        }
+
+        // 计算 BMI (体重kg / 身高m的平方)
+        const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+
+        // 更新个人中心页面的 UI 显示
+        document.getElementById('val-height').innerText = `${height} cm`;
+        document.getElementById('val-weight').innerText = `${weight} kg`;
+        document.getElementById('val-bmi').innerText = bmi;
+        document.getElementById('val-history').innerText = history;
+        document.getElementById('val-history').title = history; // 悬停显示全文
+
+        // 显示展示卡片
+        document.getElementById('health-display-card').classList.remove('hidden');
+
+        // 模拟与后端 API 对接（对应您的 Spring Boot 后端）
+        try {
+          const response = await fetch('/api/user/update-health', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              height: parseFloat(height),
+              weight: parseFloat(weight),
+              bmi: parseFloat(bmi),
+              geneticHistory: history
+            })
+          });
+
+          if (response.ok) {
+            alert('健康档案已更新');
+          }
+        } catch (err) {
+          // 如果后端还没写好，先在前端显示成功，控制台报错
+          console.warn('后端 API 未就绪，数据已更新至当前页面');
+          alert('档案保存成功（本地更新）');
+        }
+
+        closeHealthModal();
+      };
+
+      // --- 问诊记录核心逻辑 ---
+
+      /**
+       * 1. 保存问诊记录到数据库
+       * 在 AI 辨证完成后调用
+       */
+      window.saveConsultRecord = async function(resultData) {
+        const record = {
+          userId: loggedUser.id || 'guest', // 未登录也记录
+          consultTime: new Date().toLocaleString(),
+          diagType: resultData.type,
+          feature: resultData.feature,
+          risk: resultData.risk,
+          advice: resultData.advice
+        };
+
+        // ✅ 1. 先存本地（保证立即显示）
+        consultRecords.unshift(record);
+        renderRecords(consultRecords);
+
+        // ✅ 2. 再尝试存后端（不影响前端体验）
+        if (!loggedUser.id) return;
+
+        try {
+          const res = await fetch('/api/records/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
+          });
+
+          if (res.ok) {
+            console.log('记录已同步到服务器');
+          }
+        } catch (err) {
+          console.warn('后端未就绪，仅本地保存');
+        }
+      };
+
+      /**
+       * 2. 从数据库加载历史记录
+       */
+
+
+
+<!--这里改了-->      let consultRecords = []; // 统一数据源（前端唯一可信数据）// 兜底模拟数据
+
+
+
+
+      window.loadHistoryRecords = async function() {
+        // ✅ 先渲染本地已有记录（秒显示）
+        renderRecords(consultRecords);
+
+        // 未登录就不请求后端
+        if (!loggedUser.id) return;
+
+        try {
+          const res = await fetch(`/api/records/list?userId=${loggedUser.id}`);
+          const data = await res.json();
+
+          // ✅ 覆盖本地数据（以服务器为准）
+          consultRecords = data;
+          renderRecords(consultRecords);
+        } catch (err) {
+          console.log('使用本地记录');
+        }
+      };
+
+      /**
+       * 3. 渲染记录列表到 UI
+       */
+      function renderRecords(records) {
+        const container = document.getElementById('record-list');
+        if (!container) return;
+
+        if (records.length === 0) {
+          container.innerHTML = '<p class="text-gray-500 text-center py-4">暂无问诊记录</p>';
+          return;
+        }
+
+        container.innerHTML = records.map((rec, index) => `
+        <div class="flex justify-between items-center p-4 bg-zhongyi-light/20 rounded-xl border border-transparent hover:border-zhongyi-main/30 transition-all">
+            <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-xs font-bold bg-zhongyi-accent text-white px-2 py-0.5 rounded">${rec.diagType}</span>
+                    <p class="font-medium text-sm text-gray-500">${rec.consultTime}</p>
+                </div>
+                <p class="text-sm text-zhongyi-dark"><span class="text-gray-400">特征：</span>${rec.feature}</p>
+                <p class="text-sm text-zhongyi-dark"><span class="text-gray-400">风险：</span>${rec.risk}</p>
+            </div>
+            <button onclick="viewRecordDetail(${index})" class="text-zhongyi-accent hover:underline text-sm shrink-0 ml-4">
+                查看详情
+            </button>
+        </div>
+    `).join('');
+      }
+
+// 4. 查看详情跳转
+      window.viewRecordDetail = function(index) {
+        const rec = consultRecords[index];
+        if (!rec) return;
+
+        document.getElementById('res-type').innerText = rec.diagType;
+        document.getElementById('res-feature').innerText = rec.feature;
+        document.getElementById('res-risk').innerText = rec.risk;
+        document.getElementById('res-advice').innerText = rec.advice;
+
+        switchPage('result');
+      };
+    });
+  </script>
+</body>
+</html>
