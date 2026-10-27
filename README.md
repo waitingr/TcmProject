@@ -28,7 +28,7 @@
 | **JDK** | Java 17+ |
 | **前端** | 原生 HTML + CSS + JS (静态资源托管于 Spring Boot) |
 | **大模型接入** | RESTful API (OpenAI 兼容格式) |
-| **其他** | Lombok, Maven Wrapper |
+| **其他** | Lombok, BCrypt (spring-security-crypto), Maven Wrapper |
 
 ---
 
@@ -39,24 +39,31 @@ TcmProject
 ├── src
 │   ├── main
 │   │   ├── java/com/example/tcmproject
-│   │   │   ├── controller/        # REST 控制器
-│   │   │   │   └── TcmController.java
-│   │   │   ├── entity/            # JPA 实体类
+│   │   │   ├── controller/              # REST 控制器
+│   │   │   │   ├── AuthController.java  # 注册 / 登录 / 资料 / 健康档案
+│   │   │   │   ├── RecordController.java# 问诊记录的增查
+│   │   │   │   └── ApiExceptionHandler.java
+│   │   │   ├── dto/                     # 入参 / 出参对象（隔离实体与密码）
+│   │   │   ├── entity/                  # JPA 实体
 │   │   │   │   ├── User.java
-│   │   │   │   ├── ConsultationRecord.java
-│   │   │   │   └── ConsultRecord.java
-│   │   │   ├── repository/        # 数据访问层
+│   │   │   │   └── ConsultationRecord.java
+│   │   │   ├── repository/              # 数据访问层
 │   │   │   │   ├── UserRepository.java
-│   │   │   │   ├── RecordRepository.java
-│   │   │   │   └── Repository.java
+│   │   │   │   └── RecordRepository.java
+│   │   │   ├── service/                 # 业务逻辑
+│   │   │   │   ├── UserService.java
+│   │   │   │   └── RecordService.java
 │   │   │   └── TcmProjectApplication.java  # 启动类
 │   │   └── resources
 │   │       ├── application.properties      # 配置文件
-│   │       └── static/index.html           # 前端页面
+│   │       └── static/index.html           # 前端页面（单页应用）
 │   └── test
-│       └── java/.../TcmProjectApplicationTests.java
+│       ├── java/.../ConsultationFlowTests.java  # 注册→登录→档案→记录闭环测试
+│       ├── java/.../TcmProjectApplicationTests.java
+│       └── resources/application.properties     # 测试用 H2 配置
 ├── sql
 │   └── init_database.sql        # 数据库初始化脚本
+├── .mvn/wrapper                 # Maven Wrapper 配置
 ├── .gitignore
 ├── pom.xml
 ├── mvnw / mvnw.cmd
@@ -153,15 +160,15 @@ java -jar target/TcmProject-0.0.1-SNAPSHOT.jar
 
 | 接口 | 方法 | 说明 |
 |------|------|------|
-| `/api/users/register` | POST | 用户注册 |
-| `/api/users/login` | POST | 用户登录 |
-| `/api/users/{id}` | GET | 获取用户信息 |
-| `/api/users/{id}` | PUT | 更新用户信息 |
-| `/api/consult` | POST | 智能问诊（核心接口） |
-| `/api/records/user/{userId}` | GET | 查询用户问诊记录列表 |
-| `/api/records/{id}` | GET | 查询问诊记录详情 |
+| `/api/register` | POST | 用户注册（密码 BCrypt 加密存储） |
+| `/api/login` | POST | 用户登录，返回 `userId` / `nickname` |
+| `/api/users/{id}` | GET | 获取用户资料（不含密码） |
+| `/api/users/{id}/health` | POST | 保存健康档案，BMI 由后端计算 |
+| `/api/records?userId={id}` | POST | 保存一次问诊结论 |
+| `/api/records?userId={id}` | GET | 当前用户问诊记录（按时间倒序） |
+| `/api/records/{id}?userId={id}` | GET | 记录详情，校验记录归属 |
 
-> 详细请求/响应示例请参考 `TcmController.java` 源码。
+> 注册/登录失败、参数非法等情况统一返回 `400/404` 与 `{"success": false, "message": "..."}`，前端直接把 `message` 显示给用户。
 
 ---
 
@@ -174,7 +181,7 @@ java -jar target/TcmProject-0.0.1-SNAPSHOT.jar
 |------|------|------|
 | id | BIGINT | 主键，自增 |
 | username | VARCHAR(50) | 用户名，唯一 |
-| password | VARCHAR(100) | 密码（建议加密存储） |
+| password | VARCHAR(100) | 密码（BCrypt 密文） |
 | nickname | VARCHAR(50) | 昵称 |
 | height | DOUBLE | 身高(cm) |
 | weight | DOUBLE | 体重(kg) |
@@ -182,55 +189,51 @@ java -jar target/TcmProject-0.0.1-SNAPSHOT.jar
 | genetic_history | VARCHAR(500) | 遗传病史 |
 | bmi | DOUBLE | BMI指数 |
 
-#### `consultation_records` - 问诊记录表 (JPA 关联版)
+#### `consultation_records` - 问诊记录表
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | id | BIGINT | 主键，自增 |
 | user_id | BIGINT | 外键关联 users.id |
-| symptoms | VARCHAR(1000) | 主诉症状 |
+| symptoms | VARCHAR(1000) | 主诉症状（问诊对话中用户输入） |
 | diagnosis_type | VARCHAR(100) | 证型判定 |
 | features | VARCHAR(500) | 体质特征 |
 | risks | VARCHAR(500) | 健康风险 |
 | advice | TEXT | 调理建议 |
 | consult_time | DATETIME | 问诊时间 |
 
-#### `consult_records` - 问诊记录表 (轻量版)
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | BIGINT | 主键，自增 |
-| user_id | BIGINT | 关联用户ID |
-| consult_time | VARCHAR(50) | 问诊时间字符串 |
-| diag_type | VARCHAR(100) | 证型判定 |
-| feature | VARCHAR(500) | 体质特征 |
-| risk | VARCHAR(500) | 健康风险 |
-| advice | TEXT | 调理建议 |
+> 早期版本还有一张 `consult_records` 轻量表和 `ConsultRecord` 实体，与上表重复且没有任何代码使用，已移除。如数据库里仍有该表，可执行 `DROP TABLE IF EXISTS consult_records;`。
 
 ---
 
 ## ⚙️ 大模型配置
 
-项目通过调用大模型 API 实现中医推理。需在 `TcmController.java` 或配置文件中设置：
+当前实现中，模型调用由前端 `src/main/resources/static/index.html` 里的 `aiConfig` 直接发起（DeepSeek 的 OpenAI 兼容接口）：
 
-```java
-// 示例：DeepSeek API 配置
-String apiKey = "your-api-key";
-String baseUrl = "https://api.deepseek.com/v1/chat/completions";
-// 或兼容 OpenAI 格式的其他服务
+```js
+const aiConfig = {
+  url: 'https://api.deepseek.com/chat/completions',
+  key: 'sk-****',          // 需要替换为有效 Key
+  model: 'deepseek-chat'
+};
 ```
 
-> 建议将 API Key 通过环境变量或配置中心注入，避免硬编码。
+> ⚠️ 这是演示阶段的临时做法：Key 会暴露在浏览器里，且 Key 失效时问诊会直接提示失败（不影响登录、健康档案和已保存记录的查看）。正式部署请改为后端代理，把 Key 放进环境变量。
 
 ---
 
 ## 🧪 测试
 
 ```bash
-# 运行单元测试
+# 运行测试
 ./mvnw test
-
-# 运行测试并生成报告
-./mvnw test jacoco:report
 ```
+
+测试使用 H2 内存数据库（`src/test/resources/application.properties`），不需要本地启动 MySQL，覆盖：
+
+- 注册、重复注册、错误密码、登录成功
+- 用户资料接口不返回密码字段
+- 健康档案参数校验、BMI 后端计算、重新读取确认已落库
+- 问诊记录保存 / 列表 / 详情，以及不同用户之间的数据隔离
 
 ---
 
@@ -274,6 +277,9 @@ docker run -d -p 8080:8080 \
 | 问题 | 解决方案 |
 |------|----------|
 | 启动报 `Communications link failure` | 检查 MySQL 是否启动、端口 3306 是否开放、防火墙设置 |
+| 启动报 `Cannot start maven from wrapper` | 仓库已补齐 `.mvn/wrapper/maven-wrapper.properties`，请拉取最新代码，或直接用本机 Maven |
+| 演示账号 `demo_user` 登录失败 | 旧脚本中的密码哈希与 `123456` 不匹配，已修正；重新执行 `sql/init_database.sql` 会把演示账号密码重置为 `123456` |
+| 健康档案 / 问诊记录保存后刷新就没了 | 旧版本前后端接口路径不一致（`/api/records/add` 等），已统一为 `/api/records` 与 `/api/users/{id}/health`，请确认前后端是同一版本 |
 | 表未自动创建 | 确认 `spring.jpa.hibernate.ddl-auto=update`，且数据库用户有 CREATE 权限 |
 | 中文乱码 | 确保 MySQL 使用 `utf8mb4`，连接 URL 包含 `characterEncoding=utf-8` |
 | 端口 8080 被占用 | 修改 `server.port=8081` 或杀掉占用进程 |

@@ -72,6 +72,7 @@
         <input type="text" id="auth-nickname" placeholder="设置您的公开昵称" class="w-full border border-zhongyi-light rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-zhongyi-main outline-none">
       </div>
       
+      <p id="auth-error" class="text-sm text-red-500 text-center min-h-[1.25rem]"></p>
       <button id="auth-submit-btn" class="w-full btn-zhongyi shadow-none py-2">进入平台</button>
       
       <p class="text-center text-sm text-gray-500">
@@ -110,7 +111,7 @@
   <main class="flex-grow container mx-auto px-4 py-8">
     <section id="home" class="page active">
       <div class="relative rounded-2xl overflow-hidden bg-zhongyi-dark/90 text-white py-16 md:py-24 px-6 mb-12 flex flex-col items-center justify-center text-center">
-        <div class="absolute inset-0 bg-image opacity-20 pointer-events-none" style="background-image: url('https://picsum.photos/id/237/1920/1080'); background-size: cover; background-position: center;"></div>
+        <div class="absolute inset-0 pointer-events-none opacity-60" style="background-image: radial-gradient(circle at 18% 22%, rgba(200,162,120,0.55), transparent 45%), radial-gradient(circle at 82% 72%, rgba(44,92,66,0.45), transparent 52%);"></div>
         <h2 class="text-3xl md:text-5xl font-song font-bold mb-4 relative z-10">智能辨证 · 一人一方</h2>
         <p class="text-lg md:text-xl mb-8 max-w-2xl relative z-10">基于大语言模型与中医知识图谱，打造便捷、专业的中医智能问诊服务</p>
         <button id="start-consult-btn" onclick="goToConsult()" class="btn-zhongyi text-lg md:text-xl py-4 px-10 relative z-20">
@@ -138,34 +139,39 @@
 
       <div id="news" class="card-zhongyi">
         <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-newspaper text-zhongyi-main"></i>中医健康资讯
+          <i class="fa-solid fa-newspaper text-zhongyi-main"></i>中医养生小贴士
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <a href="#" class="group hover:text-zhongyi-accent">
-            <div class="rounded-lg overflow-hidden h-40 mb-2">
-              <img src="https://picsum.photos/id/1025/400/300" alt="春季养生" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+          <div class="rounded-xl bg-zhongyi-light/30 border border-zhongyi-main/10 p-4">
+            <div class="w-10 h-10 rounded-full bg-zhongyi-accent/10 text-zhongyi-accent flex items-center justify-center mb-3">
+              <i class="fa-solid fa-seedling"></i>
             </div>
-            <p class="font-medium">春季养肝，这些食疗方要收好</p>
-          </a>
-          <a href="#" class="group hover:text-zhongyi-accent">
-            <div class="rounded-lg overflow-hidden h-40 mb-2">
-              <img src="https://picsum.photos/id/1080/400/300" alt="痰湿体质调理" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            <p class="font-medium mb-1">春季养肝</p>
+            <p class="text-sm text-gray-600 leading-relaxed">少酸多甘、早睡早起，可饮菊花枸杞茶，按揉太冲穴疏肝理气。</p>
+          </div>
+          <div class="rounded-xl bg-zhongyi-light/30 border border-zhongyi-main/10 p-4">
+            <div class="w-10 h-10 rounded-full bg-zhongyi-accent/10 text-zhongyi-accent flex items-center justify-center mb-3">
+              <i class="fa-solid fa-droplet"></i>
             </div>
-            <p class="font-medium">痰湿体质的日常调理指南</p>
-          </a>
-          <a href="#" class="group hover:text-zhongyi-accent">
-            <div class="rounded-lg overflow-hidden h-40 mb-2">
-              <img src="https://picsum.photos/id/1060/400/300" alt="夏季祛湿" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            <p class="font-medium mb-1">痰湿体质调理</p>
+            <p class="text-sm text-gray-600 leading-relaxed">少食肥甘厚味，多食薏苡仁、赤小豆，坚持快走与八段锦。</p>
+          </div>
+          <div class="rounded-xl bg-zhongyi-light/30 border border-zhongyi-main/10 p-4">
+            <div class="w-10 h-10 rounded-full bg-zhongyi-accent/10 text-zhongyi-accent flex items-center justify-center mb-3">
+              <i class="fa-solid fa-sun"></i>
             </div>
-            <p class="font-medium">夏季祛湿，这3个功法超有效</p>
-          </a>
-          <a href="#" class="group hover:text-zhongyi-accent">
-            <div class="rounded-lg overflow-hidden h-40 mb-2">
-              <img src="https://picsum.photos/id/1074/400/300" alt="气虚质养生" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+            <p class="font-medium mb-1">夏季祛湿</p>
+            <p class="text-sm text-gray-600 leading-relaxed">避免久居空调房，可艾灸足三里、阴陵泉，少贪生冷。</p>
+          </div>
+          <div class="rounded-xl bg-zhongyi-light/30 border border-zhongyi-main/10 p-4">
+            <div class="w-10 h-10 rounded-full bg-zhongyi-accent/10 text-zhongyi-accent flex items-center justify-center mb-3">
+              <i class="fa-solid fa-heart-pulse"></i>
             </div>
-            <p class="font-medium">气虚质人群的饮食与运动建议</p>
-          </a>
+            <p class="font-medium mb-1">气虚质养生</p>
+            <p class="text-sm text-gray-600 leading-relaxed">宜食山药、大枣、黄芪；运动以微微出汗为度，忌大汗耗气。</p>
+          </div>
         </div>
+        <p class="text-xs text-gray-400 mt-4">* 以上为日常养生参考，具体调理请遵医嘱。</p>
       </div>
     </section>
 
@@ -204,6 +210,7 @@
           <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
             <i class="fa-solid fa-stethoscope text-zhongyi-main"></i>中医辨证结果
           </h3>
+          <p id="res-meta" class="text-sm text-gray-500 mb-4">完成问诊后，这里会显示本次结论。</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div class="p-4 bg-zhongyi-light/30 rounded-lg">
               <p class="text-sm text-gray-500 mb-1">证型判定</p>
@@ -217,6 +224,10 @@
               <p class="text-sm text-gray-500 mb-1">健康风险</p>
               <p id="res-risk" class="text-zhongyi-dark">等待问诊中...</p>
             </div>
+          </div>
+          <div id="res-symptoms-wrap" class="p-4 bg-zhongyi-light/20 rounded-lg mb-4 hidden">
+            <p class="text-sm text-gray-500 mb-1">主诉症状</p>
+            <p id="res-symptoms" class="text-zhongyi-dark text-sm whitespace-pre-line leading-relaxed"></p>
           </div>
           <p class="text-gray-600 text-sm">* 本结果为智能辨证参考，不构成专业医疗建议，如有不适请及时就医。</p>
         </div>
@@ -236,14 +247,15 @@
       <div class="max-w-2xl mx-auto">
         <div class="card-zhongyi mb-6">
           <div class="flex flex-col sm:flex-row gap-4 items-center mb-6">
-            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-zhongyi-main">
-              <img src="https://picsum.photos/id/1005/100/100" alt="用户头像" class="w-full h-full object-cover">
+            <div id="profile-avatar" class="w-20 h-20 rounded-full border-2 border-zhongyi-main bg-zhongyi-main/10 text-zhongyi-main flex items-center justify-center text-3xl font-song shrink-0">客</div>
+            <div class="text-center sm:text-left">
+              <h3 id="profile-nickname" class="text-xl font-bold">未登录</h3>
+              <p class="text-gray-600 flex items-center justify-center sm:justify-start gap-1"><i class="fa-solid fa-id-card"></i><span id="profile-username">--</span></p>
+              <p class="text-gray-600 flex items-center justify-center sm:justify-start gap-1 mt-1"><i class="fa-solid fa-heart-pulse"></i><span id="profile-constitution">尚无问诊结论</span></p>
             </div>
-            <div>
-              <h3 class="text-xl font-bold">张大爷</h3>
-              <p class="text-gray-600 flex items-center gap-1"><i class="fa-solid fa-id-card"></i>实名认证用户</p>
-              <p class="text-gray-600 flex items-center gap-1 mt-1"><i class="fa-solid fa-birthday-cake"></i>65岁 · 气虚质</p>
-            </div>
+            <button id="logout-btn" type="button" class="sm:ml-auto text-sm text-gray-500 hover:text-red-500 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors">
+              <i class="fa-solid fa-right-from-bracket mr-1"></i>退出登录
+            </button>
           </div>
 
           <!--按钮区域-->
@@ -263,7 +275,7 @@
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
               <i class="fa-solid fa-notes-medical text-zhongyi-main"></i> 我的健康数据
             </h3>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
               <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
                 <p class="text-xs text-gray-500 mb-1">身高</p>
                 <p id="val-height" class="font-bold text-zhongyi-dark">-- cm</p>
@@ -277,32 +289,28 @@
                 <p id="val-bmi" class="font-bold text-zhongyi-accent">--</p>
               </div>
               <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
+                <p class="text-xs text-gray-500 mb-1">血型</p>
+                <p id="val-blood" class="font-bold text-zhongyi-dark">未填</p>
+              </div>
+              <div class="bg-zhongyi-light/30 p-3 rounded-lg border border-zhongyi-main/10">
                 <p class="text-xs text-gray-500 mb-1">遗传病史</p>
-                <p id="val-history" class="font-bold text-zhongyi-dark text-sm truncate" title="无">无</p>
+                <p id="val-history" class="font-bold text-zhongyi-dark text-sm truncate" title="无">未填</p>
               </div>
             </div>
+            <p class="text-xs text-gray-400 mt-3">* 健康数据仅用于辅助辨证，可在需要时随时修改。</p>
           </div>
+          <p id="health-empty" class="text-sm text-gray-500 text-center mt-4">还没有健康档案，补充身高体重能让辨证更准确。</p>
         </div>
 
         <div class="card-zhongyi">
-          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-clock-rotate-left text-zhongyi-main"></i>近期问诊记录
-          </h3>
-          <div class="border-t border-zhongyi-light/50 pt-4">
-            <div class="flex justify-between items-center mb-3 pb-3 border-b border-zhongyi-light/30">
-              <div>
-                <p class="font-medium">2026-05-20 智能问诊</p>
-                <p class="text-sm text-gray-600">气虚质/痰湿质辨证</p>
-              </div>
-              <a href="#result" class="text-zhongyi-accent hover:underline text-sm">查看详情</a>
-            </div>
-            <div class="flex justify-between items-center">
-              <div>
-                <p class="font-medium">2026-05-10 智能问诊</p>
-                <p class="text-sm text-gray-600">脾虚质辨证</p>
-              </div>
-              <a href="#" class="text-zhongyi-accent hover:underline text-sm">查看详情</a>
-            </div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left text-zhongyi-main"></i>近期问诊记录
+            </h3>
+            <span id="record-count" class="text-sm text-gray-400"></span>
+          </div>
+          <div id="record-list" class="border-t border-zhongyi-light/50 pt-4 flex flex-col gap-3">
+            <p class="text-gray-500 text-center py-4">暂无问诊记录</p>
           </div>
         </div>
       </div>
@@ -346,104 +354,495 @@
           <input type="number" id="in-weight" placeholder="输入体重，如 70" class="w-full border border-zhongyi-light rounded-xl px-4 py-3 focus:ring-2 focus:ring-zhongyi-accent outline-none transition-all">
         </div>
         <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">血型</label>
+          <select id="in-blood" class="w-full border border-zhongyi-light rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-zhongyi-accent outline-none transition-all">
+            <option value="">未知 / 不便填写</option>
+            <option value="A型">A型</option>
+            <option value="B型">B型</option>
+            <option value="AB型">AB型</option>
+            <option value="O型">O型</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">遗传病史 / 过敏史</label>
           <textarea id="in-history" rows="3" placeholder="如：家族有高血压史、对青霉素过敏等。若无请填“无”。" class="w-full border border-zhongyi-light rounded-xl px-4 py-3 focus:ring-2 focus:ring-zhongyi-accent outline-none transition-all resize-none"></textarea>
         </div>
+        <p id="health-error" class="text-sm text-red-500 text-center min-h-[1.25rem]"></p>
         <div class="flex gap-4 pt-2">
           <button onclick="closeHealthModal()" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all">取消</button>
-          <button onclick="saveHealthData()" class="flex-1 btn-zhongyi py-3 shadow-none bg-zhongyi-accent rounded-xl">保存档案</button>
+          <button id="health-save-btn" onclick="saveHealthData()" class="flex-1 btn-zhongyi py-3 shadow-none bg-zhongyi-accent rounded-xl">保存档案</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // 核心配置
-      // 核心配置
-      const apiConfig = {
-        url: 'https://api.deepseek.com/chat/completions', // 建议使用标准路径
+document.addEventListener('DOMContentLoaded', function () {
+      'use strict';
+
+      /* ==================== 配置 ==================== */
+      // 大模型调用保持原样，本次调整不涉及该部分
+      const aiConfig = {
+        url: 'https://api.deepseek.com/chat/completions',
         key: 'sk-5da9b7a8a3df4d618dab89928afabbfd',
-        model: 'deepseek-chat' // 修复模型名称
+        model: 'deepseek-chat'
       };
 
-      // 1. 导航与页面切换逻辑
+      const STORAGE_USER = 'tcm.currentUser';
+      const STORAGE_FONT = 'tcm.fontSize';
+
+      const state = {
+        user: null,       // { id, nickname }
+        profile: null,    // 后端返回的用户资料（不含密码）
+        records: [],      // 问诊记录
+        symptoms: [],     // 本次问诊中用户说过的话，作为“主诉症状”保存
+        sending: false
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      /* ==================== 通用工具 ==================== */
+      function showToast(message, ok) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed left-1/2 -translate-x-1/2 bottom-8 z-[200] px-5 py-2.5 rounded-lg text-white text-sm shadow-lg transition-opacity duration-300 ' +
+          (ok === false ? 'bg-red-500' : 'bg-zhongyi-accent');
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function () {
+          toast.style.opacity = '0';
+          setTimeout(function () { toast.remove(); }, 350);
+        }, 2200);
+      }
+
+      async function readJson(response) {
+        try {
+          return await response.json();
+        } catch (error) {
+          return null;
+        }
+      }
+
+      async function ensureOk(response) {
+        const data = await readJson(response);
+        if (!response.ok) {
+          throw new Error((data && data.message) || ('请求失败（' + response.status + '）'));
+        }
+        return data;
+      }
+
+      function formatNumber(value) {
+        const number = Number(value);
+        if (!isFinite(number)) return '--';
+        return Number.isInteger(number) ? String(number) : number.toFixed(1);
+      }
+
+      /* ==================== 页面切换 ==================== */
       const navLinks = document.querySelectorAll('.nav-link');
       const pages = document.querySelectorAll('.page');
-      
+
       function switchPage(targetId) {
-        if (targetId === 'center') {
-          loadHistoryRecords(); // ⭐进入个人中心自动刷新
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        if (targetId === 'center' && state.user) {
+          loadRecords();
         }
-        navLinks.forEach(l => l.classList.remove('active', 'text-zhongyi-accent'));
-        pages.forEach(p => p.classList.add('hidden'));
-        const activeLink = document.querySelector(`a[href="#${targetId}"]`);
-        if (activeLink) activeLink.classList.add('active', 'text-zhongyi-accent');
-        document.getElementById(targetId).classList.remove('hidden');
+        pages.forEach(function (page) { page.classList.add('hidden'); });
+        navLinks.forEach(function (link) { link.classList.remove('active', 'text-zhongyi-accent'); });
+        target.classList.remove('hidden');
+        navLinks.forEach(function (link) {
+          if (link.getAttribute('href') === '#' + targetId) {
+            link.classList.add('active', 'text-zhongyi-accent');
+          }
+        });
         window.scrollTo(0, 0);
       }
 
-      navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
+      navLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
           switchPage(link.getAttribute('href').slice(1));
         });
       });
 
-      // 暴露跳转方法给“开始问诊”按钮
-      window.goToConsult = function() {
+      window.goToConsult = function () {
         switchPage('consult');
       };
 
-      // 2. 适老化字体调节
-      const fontSm = document.getElementById('font-sm');
-      const fontMd = document.getElementById('font-md');
-      const fontLg = document.getElementById('font-lg');
-      const body = document.body;
+      /* ==================== 适老化字号（记忆选择） ==================== */
+      const FONT_CLASSES = ['font-size-16', 'font-size-18', 'font-size-20'];
+      const fontButtons = {
+        'font-size-16': $('font-sm'),
+        'font-size-18': $('font-md'),
+        'font-size-20': $('font-lg')
+      };
 
-      function setFontSize(sizeClass, btnActive) {
-        body.className = body.className.replace(/font-size-\d+/g, '');
-        body.classList.add(sizeClass);
-        [fontSm, fontMd, fontLg].forEach(btn => btn.classList.remove('bg-zhongyi-main/20'));
-        if (btnActive) btnActive.classList.add('bg-zhongyi-main/20');
+      function applyFontSize(size, persist) {
+        const target = FONT_CLASSES.indexOf(size) >= 0 ? size : 'font-size-18';
+        document.body.classList.remove.apply(document.body.classList, FONT_CLASSES);
+        document.body.classList.add(target);
+        Object.keys(fontButtons).forEach(function (key) {
+          const button = fontButtons[key];
+          if (button) button.classList.toggle('bg-zhongyi-main/20', key === target);
+        });
+        if (persist) localStorage.setItem(STORAGE_FONT, target);
       }
 
-      fontSm.addEventListener('click', () => setFontSize('font-size-16', fontSm));
-      fontMd.addEventListener('click', () => setFontSize('font-size-18', fontMd));
-      fontLg.addEventListener('click', () => setFontSize('font-size-20', fontLg));
+      Object.keys(fontButtons).forEach(function (key) {
+        if (!fontButtons[key]) return;
+        fontButtons[key].addEventListener('click', function () { applyFontSize(key, true); });
+      });
 
-      // 3. 提取辨证结果逻辑 (解决逗号截断问题)
-      function syncResult(text) {
-        const clean = text.replace(/[*#]/g, '');
+      applyFontSize(localStorage.getItem(STORAGE_FONT) || 'font-size-18', false);
 
-        const typeMatch = clean.match(/(?:证型|结论|判定|诊断)[：:\s]+([^\n]+)/i);
-        const featureMatch = clean.match(/(?:特征|体质特征|表现)[：:\s]+([^\n]+)/i);
-        const riskMatch = clean.match(/(?:风险|健康风险|注意)[：:\s]+([^\n]+)/i);
-        const adviceMatch = clean.match(/(?:建议|方案|调理建议)[：:\s]+([\s\S]+)/i);
+      /* ==================== 登录 / 注册 ==================== */
+      const authModal = $('auth-modal');
+      let isRegisterMode = false;
 
-        const resultObj = {
-          type: typeMatch ? typeMatch[1].trim() : "待定证型",
-          feature: featureMatch ? featureMatch[1].trim() : "详见详情",
-          risk: riskMatch ? riskMatch[1].trim() : "遵医嘱",
-          advice: adviceMatch ? adviceMatch[1].trim() : "完成问诊生成方案"
-        };
-
-        // 1. 更新 UI 界面
-        document.getElementById('res-type').innerText = resultObj.type;
-        document.getElementById('res-feature').innerText = resultObj.feature;
-        document.getElementById('res-risk').innerText = resultObj.risk;
-        document.getElementById('res-advice').innerText = resultObj.advice;
-
-        // 2. 调用保存接口存入数据库
-        saveConsultRecord(resultObj);
+      function setAuthNotice(message, ok) {
+        const holder = $('auth-error');
+        holder.textContent = message || '';
+        holder.classList.toggle('text-red-500', ok !== true);
+        holder.classList.toggle('text-zhongyi-accent', ok === true);
       }
 
-      // 4. 问诊对话与API对接功能
-      const chatBox = document.getElementById('chat-box');
-      const msgInput = document.getElementById('msg-input');
-      const sendBtn = document.getElementById('send-btn');
-      const voiceBtn = document.getElementById('voice-btn');
-      const voiceStatus = document.getElementById('voice-status');
+      function renderAuthMode() {
+        $('auth-title').innerText = isRegisterMode ? '岐黄传人注册' : '用户登录';
+        $('auth-hint').innerText = isRegisterMode ? '已有账号？' : '没有账号？';
+        $('auth-switch').innerText = isRegisterMode ? '点击登录' : '点击注册';
+        $('nickname-group').classList.toggle('hidden', !isRegisterMode);
+        $('auth-submit-btn').innerText = isRegisterMode ? '注册' : '进入平台';
+        setAuthNotice('', false);
+      }
+
+      function openAuth(mode) {
+        isRegisterMode = mode === 'register';
+        renderAuthMode();
+        authModal.classList.remove('hidden');
+        const usernameInput = $('auth-username');
+        if (usernameInput) usernameInput.focus();
+      }
+
+      function closeAuth() {
+        authModal.classList.add('hidden');
+      }
+
+      $('auth-switch').onclick = function () {
+        isRegisterMode = !isRegisterMode;
+        renderAuthMode();
+      };
+
+      async function submitAuth() {
+        const username = $('auth-username').value.trim();
+        const password = $('auth-password').value;
+        const nickname = $('auth-nickname').value.trim();
+
+        if (!username || !password) {
+          setAuthNotice('请输入账号和密码', false);
+          return;
+        }
+
+        const button = $('auth-submit-btn');
+        button.disabled = true;
+        button.classList.add('opacity-60');
+        button.innerText = '请稍候…';
+        setAuthNotice('', false);
+
+        try {
+          const response = await fetch(isRegisterMode ? '/api/register' : '/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(isRegisterMode
+              ? { username: username, password: password, nickname: nickname }
+              : { username: username, password: password })
+          });
+          const data = await ensureOk(response);
+
+          if (isRegisterMode) {
+            isRegisterMode = false;
+            renderAuthMode();
+            $('auth-username').value = username;
+            $('auth-password').value = '';
+            setAuthNotice('注册成功，请使用刚设置的密码登录', true);
+            $('auth-password').focus();
+          } else {
+            await signIn(data.userId, data.nickname);
+          }
+        } catch (error) {
+          setAuthNotice(error.message || '操作失败，请稍后重试', false);
+        } finally {
+          button.disabled = false;
+          button.classList.remove('opacity-60');
+          button.innerText = isRegisterMode ? '注册' : '进入平台';
+        }
+      }
+
+      $('auth-submit-btn').onclick = submitAuth;
+      [$('auth-username'), $('auth-password'), $('auth-nickname')].forEach(function (input) {
+        if (!input) return;
+        input.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            submitAuth();
+          }
+        });
+      });
+
+      async function signIn(userId, nickname) {
+        state.user = { id: userId, nickname: nickname || '朋友' };
+        localStorage.setItem(STORAGE_USER, JSON.stringify(state.user));
+        $('auth-password').value = '';
+        closeAuth();
+        await refreshProfile();
+        await loadRecords();
+        showToast('欢迎回来，' + state.user.nickname);
+      }
+
+      async function signOut(silent) {
+        state.user = null;
+        state.profile = null;
+        state.records = [];
+        state.symptoms = [];
+        localStorage.removeItem(STORAGE_USER);
+        renderProfile();
+        renderRecords();
+        if (!silent) showToast('已退出登录');
+        openAuth('login');
+      }
+
+      /* ==================== 个人资料 / 健康档案 ==================== */
+      async function refreshProfile() {
+        if (!state.user) return;
+        try {
+          const response = await fetch('/api/users/' + encodeURIComponent(state.user.id));
+          if (response.status === 404) {
+            await signOut(true);
+            return;
+          }
+          state.profile = await ensureOk(response);
+          if (state.profile && state.profile.nickname) {
+            state.user.nickname = state.profile.nickname;
+            localStorage.setItem(STORAGE_USER, JSON.stringify(state.user));
+          }
+        } catch (error) {
+          console.warn('用户资料加载失败：', error);
+        }
+        renderProfile();
+      }
+
+      function renderProfile() {
+        const profile = state.profile || {};
+        const nickname = profile.nickname || (state.user && state.user.nickname) || '未登录';
+
+        $('profile-nickname').textContent = nickname;
+        $('profile-username').textContent = profile.username || '--';
+        $('profile-avatar').textContent = (nickname.trim().charAt(0) || '客');
+
+        const latest = state.records.length ? state.records[0] : null;
+        $('profile-constitution').textContent = latest && latest.diagnosisType
+          ? latest.diagnosisType + '（最近一次）'
+          : '尚无问诊结论';
+
+        const hasBodyData = profile.height != null && profile.weight != null;
+        $('health-display-card').classList.toggle('hidden', !hasBodyData);
+        $('health-empty').classList.toggle('hidden', hasBodyData);
+
+        $('val-height').textContent = hasBodyData ? formatNumber(profile.height) + ' cm' : '-- cm';
+        $('val-weight').textContent = hasBodyData ? formatNumber(profile.weight) + ' kg' : '-- kg';
+        $('val-bmi').textContent = hasBodyData && profile.bmi != null ? formatNumber(profile.bmi) : '--';
+        $('val-blood').textContent = profile.bloodType || '未填';
+        $('val-history').textContent = profile.geneticHistory || '未填';
+        $('val-history').title = profile.geneticHistory || '未填';
+      }
+
+      function setHealthError(message) {
+        $('health-error').textContent = message || '';
+      }
+
+      window.openHealthModal = function () {
+        const profile = state.profile || {};
+        $('in-height').value = profile.height != null ? profile.height : '';
+        $('in-weight').value = profile.weight != null ? profile.weight : '';
+        $('in-blood').value = profile.bloodType || '';
+        $('in-history').value = profile.geneticHistory || '';
+        setHealthError('');
+        $('health-modal').classList.remove('hidden');
+        $('in-height').focus();
+      };
+
+      window.closeHealthModal = function () {
+        $('health-modal').classList.add('hidden');
+      };
+
+      window.saveHealthData = async function () {
+        if (!state.user) {
+          setHealthError('登录后才能保存健康档案');
+          return;
+        }
+        const height = Number($('in-height').value);
+        const weight = Number($('in-weight').value);
+        const bloodType = $('in-blood').value;
+        const history = $('in-history').value.trim();
+
+        if (!height || !weight) {
+          setHealthError('请填写身高和体重');
+          return;
+        }
+        if (height < 50 || height > 250) {
+          setHealthError('身高请填写 50-250 cm 之间的数值');
+          return;
+        }
+        if (weight < 20 || weight > 300) {
+          setHealthError('体重请填写 20-300 kg 之间的数值');
+          return;
+        }
+
+        const button = $('health-save-btn');
+        button.disabled = true;
+        button.textContent = '保存中…';
+        setHealthError('');
+
+        try {
+          const response = await fetch('/api/users/' + encodeURIComponent(state.user.id) + '/health', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              height: height,
+              weight: weight,
+              bloodType: bloodType,
+              geneticHistory: history
+            })
+          });
+          state.profile = await ensureOk(response);
+          renderProfile();
+          closeHealthModal();
+          showToast('健康档案已保存');
+        } catch (error) {
+          setHealthError(error.message || '保存失败，请稍后重试');
+        } finally {
+          button.disabled = false;
+          button.textContent = '保存档案';
+        }
+      };
+
+      /* ==================== 问诊记录 ==================== */
+      async function loadRecords() {
+        if (!state.user) {
+          state.records = [];
+          renderRecords();
+          return;
+        }
+        const container = $('record-list');
+        if (container) {
+          container.innerHTML = '<p class="text-gray-500 text-center py-4">正在加载…</p>';
+        }
+        try {
+          const response = await fetch('/api/records?userId=' + encodeURIComponent(state.user.id));
+          const data = await ensureOk(response);
+          state.records = Array.isArray(data) ? data : [];
+        } catch (error) {
+          state.records = [];
+          showToast(error.message || '问诊记录加载失败', false);
+        }
+        renderRecords();
+        renderProfile();
+      }
+
+      function renderRecords() {
+        const container = $('record-list');
+        if (!container) return;
+        const records = Array.isArray(state.records) ? state.records : [];
+
+        $('record-count').textContent = (state.user && records.length) ? records.length + ' 条' : '';
+        container.replaceChildren();
+
+        if (!records.length) {
+          const empty = document.createElement('p');
+          empty.className = 'text-gray-500 text-center py-4';
+          empty.textContent = state.user
+            ? '暂无问诊记录，完成一次智能问诊后会自动保存在这里。'
+            : '登录后可查看历史问诊记录。';
+          container.appendChild(empty);
+          return;
+        }
+
+        records.forEach(function (record) {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center gap-4 p-4 bg-zhongyi-light/20 rounded-xl border border-transparent hover:border-zhongyi-main/30 transition-all';
+
+          const left = document.createElement('div');
+          left.className = 'flex-grow min-w-0';
+
+          const head = document.createElement('div');
+          head.className = 'flex flex-wrap items-center gap-3 mb-1';
+          const badge = document.createElement('span');
+          badge.className = 'text-xs font-bold bg-zhongyi-accent text-white px-2 py-0.5 rounded';
+          badge.textContent = record.diagnosisType || '未记录证型';
+          const time = document.createElement('p');
+          time.className = 'font-medium text-sm text-gray-500';
+          time.textContent = record.consultTime || '';
+          head.append(badge, time);
+
+          const feature = document.createElement('p');
+          feature.className = 'text-sm text-zhongyi-dark truncate';
+          feature.textContent = '特征：' + (record.features || '—');
+
+          const risk = document.createElement('p');
+          risk.className = 'text-sm text-zhongyi-dark truncate';
+          risk.textContent = '风险：' + (record.risks || '—');
+
+          left.append(head, feature, risk);
+
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'text-zhongyi-accent hover:underline text-sm shrink-0';
+          button.textContent = '查看详情';
+          button.addEventListener('click', function () { viewRecord(record.id); });
+
+          row.append(left, button);
+          container.appendChild(row);
+        });
+      }
+
+      function showRecord(record) {
+        if (!record) return;
+        $('res-type').textContent = record.diagnosisType || '未记录';
+        $('res-feature').textContent = record.features || '未记录';
+        $('res-risk').textContent = record.risks || '未记录';
+        $('res-advice').textContent = record.advice || '暂无调理建议';
+        $('res-meta').textContent = record.consultTime ? '记录时间：' + record.consultTime : '';
+
+        const symptomsWrap = $('res-symptoms-wrap');
+        if (record.symptoms && record.symptoms.trim() && record.symptoms !== '用户未填写症状描述') {
+          $('res-symptoms').textContent = record.symptoms;
+          symptomsWrap.classList.remove('hidden');
+        } else {
+          symptomsWrap.classList.add('hidden');
+        }
+        switchPage('result');
+      }
+
+      async function viewRecord(recordId) {
+        let record = state.records.find(function (item) { return item.id === recordId; }) || null;
+        try {
+          const response = await fetch('/api/records/' + encodeURIComponent(recordId) +
+            '?userId=' + encodeURIComponent(state.user.id));
+          record = await ensureOk(response);
+        } catch (error) {
+          if (!record) {
+            showToast(error.message || '记录打开失败', false);
+            return;
+          }
+        }
+        showRecord(record);
+      }
+
+      /* ==================== 问诊对话 ==================== */
+      const chatBox = $('chat-box');
+      const msgInput = $('msg-input');
+      const sendBtn = $('send-btn');
+      const voiceBtn = $('voice-btn');
+      const voiceStatus = $('voice-status');
 
       function scrollToBottom() {
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
@@ -451,353 +850,272 @@
 
       function addMessage(content, isUser) {
         if (!chatBox) return;
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `flex gap-2 items-start ${isUser ? 'justify-end' : ''}`;
+        const message = document.createElement('div');
+        message.className = 'flex gap-2 items-start ' + (isUser ? 'justify-end' : '');
 
         const avatar = document.createElement('div');
-        avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-gray-200 text-gray-700' : 'bg-zhongyi-main text-white'}`;
+        avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 ' +
+          (isUser ? 'bg-gray-200 text-gray-700' : 'bg-zhongyi-main text-white');
         avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
 
         const bubble = document.createElement('div');
-        bubble.className = `py-2 px-4 max-w-[80%] ${isUser ? 'chat-bubble-user bg-zhongyi-accent text-white' : 'chat-bubble-ai bg-zhongyi-light'}`;
+        bubble.className = 'py-2 px-4 max-w-[80%] whitespace-pre-line ' +
+          (isUser ? 'chat-bubble-user bg-zhongyi-accent text-white' : 'chat-bubble-ai bg-zhongyi-light');
         bubble.textContent = content;
 
-        isUser ? msgDiv.append(bubble, avatar) : msgDiv.append(avatar, bubble);
-        chatBox.appendChild(msgDiv);
+        if (isUser) {
+          message.append(bubble, avatar);
+        } else {
+          message.append(avatar, bubble);
+        }
+        chatBox.appendChild(message);
         scrollToBottom();
       }
 
-      async function aiReply(userMsg) {
-        // 显示思考动画
-        const loadingMsg = document.createElement('div');
-        loadingMsg.className = 'flex gap-2 items-start';
-        loadingMsg.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-zhongyi-main flex items-center justify-center text-white shrink-0">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <div class="chat-bubble-ai bg-zhongyi-light py-2 px-4 max-w-[80%] text-gray-500 italic">
-            正在为您辨证中...
-          </div>
-        `;
-        chatBox.appendChild(loadingMsg);
+      /** 从模型回复中提取末尾的“证型/特征/风险/建议”结构 */
+      function parseDiagnosis(text) {
+        if (!text) return null;
+        const lines = String(text).replace(/\r/g, '').replace(/\*\*/g, '').split('\n');
+
+        function findValue(labels) {
+          const pattern = new RegExp('^[\\s\\-*•\\d.、]*(?:' + labels.join('|') + ')\\s*[：:]\\s*(.+)$');
+          for (let i = lines.length - 1; i >= 0; i--) {
+            const match = lines[i].trim().match(pattern);
+            if (match) return match[1].trim();
+          }
+          return null;
+        }
+
+        const type = findValue(['证型', '结论', '判定', '诊断']);
+        if (!type) return null;
+
+        const feature = findValue(['特征', '体质特征', '表现']) || '详见问诊记录';
+        const risk = findValue(['风险', '健康风险', '注意']) || '遵医嘱';
+
+        let advice = '完成问诊后生成方案';
+        for (let i = lines.length - 1; i >= 0; i--) {
+          const trimmed = lines[i].trim();
+          if (/^[\s\-*•\d.、]*(?:建议|调理建议|方案)\s*[：:]/.test(trimmed)) {
+            advice = lines.slice(i).join('\n').replace(/^[\s\-*•\d.、]*(?:建议|调理建议|方案)\s*[：:]\s*/, '').trim() || advice;
+            break;
+          }
+        }
+
+        return { type: type, feature: feature, risk: risk, advice: advice };
+      }
+
+      function showDiagnosis(diagnosis) {
+        $('res-type').textContent = diagnosis.type;
+        $('res-feature').textContent = diagnosis.feature;
+        $('res-risk').textContent = diagnosis.risk;
+        $('res-advice').textContent = diagnosis.advice;
+        $('res-meta').textContent = '本次问诊结果 · ' + new Date().toLocaleString('zh-CN', { hour12: false });
+
+        if (state.symptoms.length) {
+          $('res-symptoms').textContent = state.symptoms.join('\n');
+          $('res-symptoms-wrap').classList.remove('hidden');
+        }
+      }
+
+      async function saveRecord(diagnosis) {
+        if (!state.user) return;
+        try {
+          const response = await fetch('/api/records?userId=' + encodeURIComponent(state.user.id), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              symptoms: state.symptoms.slice(-10).join('\n'),
+              diagnosisType: diagnosis.type,
+              features: diagnosis.feature,
+              risks: diagnosis.risk,
+              advice: diagnosis.advice
+            })
+          });
+          const saved = await ensureOk(response);
+          state.records = [saved].concat(state.records.filter(function (item) { return item.id !== saved.id; }));
+          renderRecords();
+          renderProfile();
+          showToast('本次辨证已保存到问诊记录');
+        } catch (error) {
+          showToast(error.message || '问诊记录保存失败', false);
+        }
+      }
+
+      async function requestAiReply(userMessage) {
+        const loading = document.createElement('div');
+        loading.className = 'flex gap-2 items-start';
+        loading.innerHTML = '' +
+          '<div class="w-8 h-8 rounded-full bg-zhongyi-main flex items-center justify-center text-white shrink-0">' +
+          '<i class="fa-solid fa-robot"></i></div>' +
+          '<div class="chat-bubble-ai bg-zhongyi-light py-2 px-4 max-w-[80%] text-gray-500 italic">正在为您辨证中…</div>';
+        chatBox.appendChild(loading);
         scrollToBottom();
 
         try {
-          const response = await fetch(apiConfig.url, {
+          const response = await fetch(aiConfig.url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiConfig.key}`
+              'Authorization': 'Bearer ' + aiConfig.key
             },
             body: JSON.stringify({
-              model: apiConfig.model,
+              model: aiConfig.model,
               messages: [
                 {
-                  role: "system",
-                  content: "你是一个专业的中医智能问诊助手。请根据用户症状进行辨证分析。为了系统能够准确提取，在回复的最末尾，请【必须】严格按照以下4行格式总结（不要使用加粗、星号或其他特殊符号，每项占一行）：\n证型：[一句话概括]\n特征：[概括症状表现]\n风险：[概括可能的健康隐患]\n建议：[详细的调理方案]"
+                  role: 'system',
+                  content: '你是一个专业的中医智能问诊助手。请根据用户症状进行辨证分析。为了系统能够准确提取，在回复的最末尾，请【必须】严格按照以下4行格式总结（不要使用加粗、星号或其他特殊符号，每项占一行）：\n证型：[一句话概括]\n特征：[概括症状表现]\n风险：[概括可能的健康隐患]\n建议：[详细的调理方案]'
                 },
-                {
-                  role: "user",
-                  content: userMsg
-                }
+                { role: 'user', content: userMessage }
               ],
               temperature: 0.7,
               max_tokens: 800
             })
           });
 
-          if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+          if (!response.ok) throw new Error('模型服务返回 ' + response.status);
           const data = await response.json();
-          const aiResponse = data.choices[0].message.content.trim();
+          const content = data && data.choices && data.choices[0] && data.choices[0].message
+            ? data.choices[0].message.content
+            : null;
+          if (!content) throw new Error('模型没有返回内容');
 
-          chatBox.removeChild(loadingMsg);
-          addMessage(aiResponse, false);
-          
-          // 调用同步逻辑，将结果填入辨证页面
-          syncResult(aiResponse);
+          loading.remove();
+          addMessage(content.trim(), false);
 
+          const diagnosis = parseDiagnosis(content);
+          if (diagnosis) {
+            showDiagnosis(diagnosis);
+            await saveRecord(diagnosis);
+          }
         } catch (error) {
-          chatBox.removeChild(loadingMsg);
-          addMessage(`抱歉，系统暂时无法响应，请稍后再试。`, false);
+          if (loading.parentNode) loading.remove();
+          addMessage('抱歉，智能问诊暂时不可用（' + error.message + '）。您仍可以查看历史记录，或稍后重试。', false);
+        } finally {
+          state.sending = false;
         }
       }
 
       function sendMessage() {
+        if (state.sending) return;
         const content = msgInput.value.trim();
         if (!content) return;
         addMessage(content, true);
-        msgInput.value = ''; // 发送后立刻清空输入框
-        aiReply(content);
+        msgInput.value = '';
+        state.symptoms.push(content);
+        state.sending = true;
+        sendBtn.disabled = true;
+        requestAiReply(content).finally(function () {
+          sendBtn.disabled = false;
+        });
       }
 
-      // 绑定发送事件（修复回车与点击）
       if (sendBtn) sendBtn.addEventListener('click', sendMessage);
       if (msgInput) {
-        msgInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
+        msgInput.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
             sendMessage();
-            e.preventDefault(); // 防止回车带来不必要的换行
           }
         });
       }
 
-      // 5. 语音按钮动画交互
-      if (voiceBtn) {
-        voiceBtn.addEventListener('click', () => {
-          voiceBtn.classList.add('recording-pulse');
-          voiceStatus.textContent = "正在聆听，请说话...";
-          
-          setTimeout(() => {
-            voiceBtn.classList.remove('recording-pulse');
-            voiceStatus.textContent = "";
-            msgInput.value = "我最近头痛发热，面色苍白，非常容易疲劳。";
-          }, 2000);
-        });
-      }
-      // --- 登录注册系统逻辑 ---
-      const authModal = document.getElementById('auth-modal');
-      const authTitle = document.getElementById('auth-title');
-      const authSubmitBtn = document.getElementById('auth-submit-btn');
-      const authSwitch = document.getElementById('auth-switch');
-      const nicknameGroup = document.getElementById('nickname-group');
-      const authHint = document.getElementById('auth-hint');
-
-      let isRegisterMode = false;
-      let loggedUser = { id: null, nickname: '游客' };
-
-      // 切换登录/注册模式
-      authSwitch.onclick = () => {
-        isRegisterMode = !isRegisterMode;
-        authTitle.innerText = isRegisterMode ? '岐黄传人注册' : '用户登录';
-        authHint.innerText = isRegisterMode ? '已有账号？' : '没有账号？';
-        authSwitch.innerText = isRegisterMode ? '点击登录' : '点击注册';
-        nicknameGroup.classList.toggle('hidden', !isRegisterMode);
-      };
-
-      // 提交按钮逻辑
-      authSubmitBtn.onclick = async () => {
-        const username = document.getElementById('auth-username').value;
-        const password = document.getElementById('auth-password').value;
-        const nickname = document.getElementById('auth-nickname').value;
-
-        if (!username || !password) return alert('请填写账号密码');
-
-        const url = isRegisterMode ? '/api/register' : '/api/login';
-        const body = isRegisterMode ? { username, password, nickname } : { username, password };
-
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-          const data = await response.json();
-
-          if (data.success) {
-            if (isRegisterMode) {
-              alert('注册成功！快去登录吧');
-              authSwitch.click(); // 自动切回登录页
-            } else {
-              // 登录成功逻辑
-              loggedUser.id = data.userId;
-              loggedUser.nickname = data.nickname || '新用户';
-
-              // 1. 更新个人中心的用户名显示
-              const userHeading = document.querySelector('#center h3');
-              if (userHeading) userHeading.innerText = loggedUser.nickname;
-
-              // 2. 更新个人中心左侧的信息栏（可选）
-              const infoTag = document.querySelector('#center .text-gray-600.flex.mt-1');
-              if (infoTag) infoTag.innerHTML = `<i class="fa-solid fa-user-tag"></i> 您好，${loggedUser.nickname}`;
-
-              // 3. 隐藏弹窗
-              authModal.classList.add('hidden');
-              alert(`欢迎回来，${loggedUser.nickname}！`);
-            }
-          } else {
-            alert(data.message || '操作失败，请重试');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('后端接口未响应，请确保 Spring Boot 已启动');
-        }
-      };
-      <!--新加得-->
-      // --- 健康档案核心逻辑 ---
-
-// 1. 打开弹窗
-      window.openHealthModal = function() {
-        document.getElementById('health-modal').classList.remove('hidden');
-        // 如果之前填过，可以自动填入旧数据（可选）
-        const h = document.getElementById('val-height').innerText.replace(' cm', '');
-        const w = document.getElementById('val-weight').innerText.replace(' kg', '');
-        if(h !== '--') document.getElementById('in-height').value = h;
-        if(w !== '--') document.getElementById('in-weight').value = w;
-      };
-
-// 2. 关闭弹窗
-      window.closeHealthModal = function() {
-        document.getElementById('health-modal').classList.add('hidden');
-      };
-
-// 3. 保存逻辑
-      window.saveHealthData = async function() {
-        const height = document.getElementById('in-height').value;
-        const weight = document.getElementById('in-weight').value;
-        const history = document.getElementById('in-history').value || "无";
-
-        if (!height || !weight) {
-          alert('请填写完整的身高和体重信息，以便为您提供精准辨证');
+      /* ==================== 语音输入（浏览器原生识别） ==================== */
+      function initVoiceInput() {
+        if (!voiceBtn) return;
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Recognition) {
+          voiceBtn.disabled = true;
+          voiceBtn.classList.add('opacity-40', 'cursor-not-allowed');
+          voiceBtn.title = '当前浏览器不支持语音输入，请使用 Chrome / Edge';
+          if (voiceStatus) voiceStatus.textContent = '当前浏览器不支持语音输入，可改用文字描述症状';
           return;
         }
 
-        // 计算 BMI (体重kg / 身高m的平方)
-        const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+        const recognition = new Recognition();
+        recognition.lang = 'zh-CN';
+        recognition.interimResults = true;
+        recognition.continuous = false;
 
-        // 更新个人中心页面的 UI 显示
-        document.getElementById('val-height').innerText = `${height} cm`;
-        document.getElementById('val-weight').innerText = `${weight} kg`;
-        document.getElementById('val-bmi').innerText = bmi;
-        document.getElementById('val-history').innerText = history;
-        document.getElementById('val-history').title = history; // 悬停显示全文
+        let recognizing = false;
+        let baseText = '';
 
-        // 显示展示卡片
-        document.getElementById('health-display-card').classList.remove('hidden');
-
-        // 模拟与后端 API 对接（对应您的 Spring Boot 后端）
-        try {
-          const response = await fetch('/api/user/update-health', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              height: parseFloat(height),
-              weight: parseFloat(weight),
-              bmi: parseFloat(bmi),
-              geneticHistory: history
-            })
-          });
-
-          if (response.ok) {
-            alert('健康档案已更新');
+        voiceBtn.addEventListener('click', function () {
+          if (recognizing) {
+            recognition.stop();
+            return;
           }
-        } catch (err) {
-          // 如果后端还没写好，先在前端显示成功，控制台报错
-          console.warn('后端 API 未就绪，数据已更新至当前页面');
-          alert('档案保存成功（本地更新）');
-        }
+          baseText = msgInput.value.trim();
+          try {
+            recognition.start();
+          } catch (error) {
+            if (voiceStatus) voiceStatus.textContent = '语音识别启动失败，请改用文字输入';
+          }
+        });
 
-        closeHealthModal();
-      };
-
-      // --- 问诊记录核心逻辑 ---
-
-      /**
-       * 1. 保存问诊记录到数据库
-       * 在 AI 辨证完成后调用
-       */
-      window.saveConsultRecord = async function(resultData) {
-        const record = {
-          userId: loggedUser.id || 'guest', // 未登录也记录
-          consultTime: new Date().toLocaleString(),
-          diagType: resultData.type,
-          feature: resultData.feature,
-          risk: resultData.risk,
-          advice: resultData.advice
+        recognition.onstart = function () {
+          recognizing = true;
+          voiceBtn.classList.add('recording-pulse');
+          if (voiceStatus) voiceStatus.textContent = '正在聆听，请说话…';
         };
 
-        // ✅ 1. 先存本地（保证立即显示）
-        consultRecords.unshift(record);
-        renderRecords(consultRecords);
-
-        // ✅ 2. 再尝试存后端（不影响前端体验）
-        if (!loggedUser.id) return;
-
-        try {
-          const res = await fetch('/api/records/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(record)
-          });
-
-          if (res.ok) {
-            console.log('记录已同步到服务器');
+        recognition.onresult = function (event) {
+          let text = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            text += event.results[i][0].transcript;
           }
-        } catch (err) {
-          console.warn('后端未就绪，仅本地保存');
-        }
-      };
+          msgInput.value = (baseText ? baseText + ' ' : '') + text.trim();
+        };
 
-      /**
-       * 2. 从数据库加载历史记录
-       */
+        recognition.onerror = function (event) {
+          if (!voiceStatus) return;
+          voiceStatus.textContent = event.error === 'not-allowed'
+            ? '麦克风权限被拒绝，请在浏览器地址栏允许后重试'
+            : '语音识别失败，请改用文字输入';
+        };
 
-
-
-<!--这里改了-->      let consultRecords = []; // 统一数据源（前端唯一可信数据）// 兜底模拟数据
-
-
-
-
-      window.loadHistoryRecords = async function() {
-        // ✅ 先渲染本地已有记录（秒显示）
-        renderRecords(consultRecords);
-
-        // 未登录就不请求后端
-        if (!loggedUser.id) return;
-
-        try {
-          const res = await fetch(`/api/records/list?userId=${loggedUser.id}`);
-          const data = await res.json();
-
-          // ✅ 覆盖本地数据（以服务器为准）
-          consultRecords = data;
-          renderRecords(consultRecords);
-        } catch (err) {
-          console.log('使用本地记录');
-        }
-      };
-
-      /**
-       * 3. 渲染记录列表到 UI
-       */
-      function renderRecords(records) {
-        const container = document.getElementById('record-list');
-        if (!container) return;
-
-        if (records.length === 0) {
-          container.innerHTML = '<p class="text-gray-500 text-center py-4">暂无问诊记录</p>';
-          return;
-        }
-
-        container.innerHTML = records.map((rec, index) => `
-        <div class="flex justify-between items-center p-4 bg-zhongyi-light/20 rounded-xl border border-transparent hover:border-zhongyi-main/30 transition-all">
-            <div class="flex-grow">
-                <div class="flex items-center gap-3 mb-1">
-                    <span class="text-xs font-bold bg-zhongyi-accent text-white px-2 py-0.5 rounded">${rec.diagType}</span>
-                    <p class="font-medium text-sm text-gray-500">${rec.consultTime}</p>
-                </div>
-                <p class="text-sm text-zhongyi-dark"><span class="text-gray-400">特征：</span>${rec.feature}</p>
-                <p class="text-sm text-zhongyi-dark"><span class="text-gray-400">风险：</span>${rec.risk}</p>
-            </div>
-            <button onclick="viewRecordDetail(${index})" class="text-zhongyi-accent hover:underline text-sm shrink-0 ml-4">
-                查看详情
-            </button>
-        </div>
-    `).join('');
+        recognition.onend = function () {
+          recognizing = false;
+          voiceBtn.classList.remove('recording-pulse');
+          if (voiceStatus && voiceStatus.textContent.indexOf('正在聆听') === 0) {
+            voiceStatus.textContent = '已识别，可编辑后发送';
+          }
+        };
       }
 
-// 4. 查看详情跳转
-      window.viewRecordDetail = function(index) {
-        const rec = consultRecords[index];
-        if (!rec) return;
+      initVoiceInput();
 
-        document.getElementById('res-type').innerText = rec.diagType;
-        document.getElementById('res-feature').innerText = rec.feature;
-        document.getElementById('res-risk').innerText = rec.risk;
-        document.getElementById('res-advice').innerText = rec.advice;
+      /* ==================== 退出登录 ==================== */
+      const logoutButton = $('logout-btn');
+      if (logoutButton) {
+        logoutButton.addEventListener('click', function () { signOut(false); });
+      }
 
-        switchPage('result');
-      };
+      /* ==================== 启动：恢复登录状态 ==================== */
+      async function restoreSession() {
+        let saved = null;
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_USER) || 'null');
+        } catch (error) {
+          saved = null;
+        }
+
+        if (saved && saved.id) {
+          state.user = { id: saved.id, nickname: saved.nickname || '朋友' };
+          authModal.classList.add('hidden');
+          await refreshProfile();
+          if (state.user) {
+            await loadRecords();
+            return;
+          }
+        }
+
+        state.user = null;
+        renderProfile();
+        renderRecords();
+        openAuth('login');
+      }
+
+      restoreSession();
     });
   </script>
 </body>
